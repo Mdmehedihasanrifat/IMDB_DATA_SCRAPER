@@ -27,3 +27,10 @@ const response=await request({
 
 })();
 
+
+let $=cheerio.load(response);
+const h1Element=document.querySelector('[data-testid="hero__pageTitle"]');
+const text=h1Element.querySelector('span').textContent;
+const RatingElement = document.querySelector('[data-testid="hero-rating-bar__aggregate-rating__score"]');
+const ratings=RatingElement.querySelector('span').textContent;
+const summeryElement = document.querySelector('span[data-testid="plot-l"].sc-466bb6c-1.dRrIo').textContent;
