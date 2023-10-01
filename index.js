@@ -1,15 +1,18 @@
 const request =require("request-promise");
 const cheerio=require("cheerio");
 const json2csv=require("json2csv").Parser;
-const fs=require(fs);
+const fs=require("fs");
 
 
-const movie="https://www.imdb.com/title/tt0242519/?ref_=nv_sr_srsg_0_tt_8_nm_0_q_hera%2520phe";
+const movies=["https://www.imdb.com/title/tt0242519/?ref_=nv_sr_srsg_0_tt_8_nm_0_q_hera%2520phe",
+              "https://www.imdb.com/title/tt0374887/?ref_=tt_sims_tt_i_2"
+];
 
 (async()=>{
 
 let imdbData=[];
-
+for(let movie of movies){
+    
 const response=await request({
 
     uri:movie,
@@ -23,14 +26,28 @@ const response=await request({
 
 })
 
+let $ = cheerio.load(response);
+const h1Element = $('[data-testid="hero__pageTitle"]');
+const movieName = h1Element.find('span').text();
+const RatingElement = $('[data-testid="hero-rating-bar__aggregate-rating__score"]');
+const ratings = RatingElement.find('span').text();
+const summeryElement = $('span[data-testid="plot-l"].sc-466bb6c-1.dRrIo').text();
+
+imdbData.push({
+    movieName,
+    ratings,
+    summeryElement
+});
+
+}
+
+const js2csv=new json2csv();
+const csv=js2csv.parse(imdbData);
+
+fs.writeFileSync("./imdb.csv",csv,"utf-8");
 
 
-})();
+}
+)();
 
 
-let $=cheerio.load(response);
-const h1Element=document.querySelector('[data-testid="hero__pageTitle"]');
-const text=h1Element.querySelector('span').textContent;
-const RatingElement = document.querySelector('[data-testid="hero-rating-bar__aggregate-rating__score"]');
-const ratings=RatingElement.querySelector('span').textContent;
-const summeryElement = document.querySelector('span[data-testid="plot-l"].sc-466bb6c-1.dRrIo').textContent;
